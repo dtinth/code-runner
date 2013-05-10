@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>code-runner example</title>
+
+  <script type="text/javascript" src="code-runner.js"></script>
+
+</head>
+
+<body>
+
+<textarea id="code">
+  var sum = function(a, b) {
+    return +a + +b
+  }
+</textarea>
+
+<script>
+
+
+var runner = new CodeRunner()
+var code = document.getElementById("code").value
+
+runner.timeout = 1000
+
+var testcase = [
+  { input: 'sum(2,4)', check: function(x) { return x == 6 } },
+  { input: 'sum(1,6)', check: function(x) { return x == 7 } }
+]
+
+function runTestcase(test, callback) {
+  runner.run([ code, test.input ], function(error, result) {
+    if (error) {
+      callback({ error: error })
+      return
+    }
+    var status = '-'
+    if (test.check(result)) {
+      status = 'P'
+    }
+    callback({ status: status })
+  })
+}
+
+function loop(from, to, callback) {
+  var i = from
+  function step() {
+    if (!(i < to)) return
+    callback(i, next)
+  }
+  function next() {
+    i++
+    step()
+  }
+  step()
+}
+
+loop(0, testcase.length, function(i, next) {
+  runTestcase(testcase[i], function(obj) {
+    console.log(obj)
+    next()
+  })
+})
+
+
+</script>
+
+</body>
+</html>
